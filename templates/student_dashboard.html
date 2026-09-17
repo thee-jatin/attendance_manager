@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSLD Varshney Student Dashboard</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f8; display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; }
+    .header { background-color: #b91c1c; color: white; text-align: center; padding: 24px 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .header h1 { font-size: 26px; font-weight: 800; }
+    .header-sub { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 6px; font-size: 13px; color: #fca5a5; }
+    .header-line { width: 30px; height: 1px; background-color: #fca5a5; }
+    .date-badge { background-color: rgba(255, 255, 255, 0.2); color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+
+    .container { max-width: 950px; margin: 20px auto; padding: 0 16px; width: 100%; }
+    .profile-card { background: white; padding: 16px 24px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+    .profile-info { display: flex; align-items: center; gap: 16px; }
+    .profile-avatar { width: 48px; height: 48px; background-color: #1e3a8a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+    .profile-name { font-size: 18px; font-weight: 700; color: #111827; }
+    .profile-sub { font-size: 13px; color: #6b7280; }
+    .class-badge { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 6px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+    .btn-logout { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+    .card-desc { font-size: 12px; color: #6b7280; line-height: 1.4; }
+    .scanner-box { width: 100%; height: 240px; background-color: #111827; border-radius: 16px; margin: 16px 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9ca3af; }
+    
+    .btn-camera { width: 100%; background-color: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    /* Verification & Submit Button Styles */
+    .btn-submit-attendance {
+      width: 100%;
+      background-color: #9ca3af;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: not-allowed;
+      margin-top: 12px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit-attendance.active {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .status-box { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 18px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .status-left { display: flex; align-items: center; gap: 12px; }
+    .status-icon { width: 40px; height: 40px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .status-label { font-size: 12px; color: #4b5563; font-weight: 600; }
+    .status-value { font-size: 16px; font-weight: 800; color: #14532d; }
+    .percentage-text { font-size: 24px; font-weight: 900; color: #15803d; text-align: right; }
+    
+    .today-box { background-color: #f8fafc; border: 1px dashed #cbd5e1; padding: 40px 20px; border-radius: 12px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .today-title { font-size: 18px; font-weight: 700; color: #334155; }
+    .today-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .footer { background-color: #b91c1c; color: white; text-align: center; padding: 12px; font-size: 12px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <div>
+    <div class="header">
+      <h1>SSLD Varshney Engineering College</h1>
+      <div class="header-sub">
+        <span class="header-line"></span>
+        <span>Student Dashboard</span>
+        <span class="header-line"></span>
+        <span class="date-badge" id="currentDate"></span>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="profile-card">
+        <div class="profile-info">
+          <div class="profile-avatar" id="avatarInitial">👤</div>
+          <div>
+            <div class="profile-name" id="studentNameDisplay">Student</div>
+            <div class="profile-sub" id="studentRollDisplay">Roll No: -- | B.Tech CSE</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <div class="class-badge">Class : CSE-2</div>
+          <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div>
+            <div class="card-title">📷 Scan Official QR</div>
+            <div class="card-desc">Step 1: Open camera & scan official QR code to verify.</div>
+
+            <div class="scanner-box" id="reader">
+              <div id="placeholderText">
+                <p style="font-size: 28px; text-align:center;">📷</p>
+                <p style="font-size: 12px; margin-top:6px;">Camera Offline</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button class="btn-camera" id="scanBtn" onclick="toggleScanner()">📷 Open Camera</button>
+            
+            <!-- Dynamic Active Button after Verification -->
+            <button class="btn-submit-attendance" id="submitBtn" disabled onclick="submitRealtimeAttendance()">
+              🔒 Scan QR to Enable Attendance
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div class="status-box" id="statusCard">
+            <div class="status-left">
+              <div class="status-icon" id="statusIcon">✓</div>
+              <div>
+                <div class="status-label">Attendance Status</div>
+                <div class="status-value" id="statusTitle">Not Marked Yet</div>
+              </div>
+            </div>
+            <div>
+              <div class="percentage-text" id="percentVal">--%</div>
+              <div style="font-size:9px; color:#6b7280; text-align:right;">OVERALL</div>
+            </div>
+          </div>
+
+          <div class="card" style="min-height: 280px;">
+            <div class="card-title" style="color:#2563eb; margin-bottom:12px;">🕒 Today's Attendance</div>
+            <div class="today-box" id="infoBox">
+              <div class="today-title" id="classTitle">--</div>
+              <div class="today-sub" id="subText">Scan QR first, then click Submit Button</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by Anshul, Jatin</div>
+
+  <script>
+    let currentRollNo = "";
+    let verifiedToken = "";
+    const VALID_TOKENS = ["ATTANDANCE_MARK", "ATTENDANCE_MARK"];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentDateElement = document.getElementById('currentDate');
+      if (currentDateElement) {
+        currentDateElement.textContent = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+
+      const savedRoll = localStorage.getItem('student_roll');
+      if (savedRoll) {
+        currentRollNo = savedRoll;
+        document.getElementById('studentNameDisplay').textContent = `Student (${savedRoll})`;
+        document.getElementById('studentRollDisplay').textContent = `Roll No: ${savedRoll} | B.Tech CSE`;
+        document.getElementById('avatarInitial').textContent = savedRoll.charAt(0);
+        document.getElementById('percentVal').textContent = "100%";
+      } else {
+        alert("Session Expired! Please login first.");
+        window.location.href = 'student_login.html';
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('student_roll');
+      window.location.href = 'student_login.html';
+    }
+
+    let scanner = null;
+    let isRunning = false;
+
+    function toggleScanner() {
+      const btn = document.getElementById('scanBtn');
+      const placeholder = document.getElementById('placeholderText');
+
+      if (!scanner) {
+        scanner = new Html5Qrcode("reader");
+      }
+
+      if (!isRunning) {
+        if (placeholder) placeholder.style.display = 'none';
+        btn.textContent = "⏳ Loading Camera...";
+
+        scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 160, height: 160 } },
+          (decodedText) => {
+            verifyQrOnClient(decodedText);
+            stopCamera();
+          },
+          () => {}
+        ).then(() => {
+          isRunning = true;
+          btn.textContent = "⏹ Close Camera";
+          btn.style.backgroundColor = "#374151";
+        }).catch((err) => {
+          console.error(err);
+          alert("Camera Access Denied or No Camera Found!");
+          btn.textContent = "📷 Open Camera";
+          if (placeholder) placeholder.style.display = 'block';
+        });
+      } else {
+        stopCamera();
+      }
+    }
+
+    function stopCamera() {
+      if (scanner) {
+        scanner.stop().then(() => {
+          isRunning = false;
+          const btn = document.getElementById('scanBtn');
+          const placeholder = document.getElementById('placeholderText');
+          btn.textContent = "📷 Open Camera";
+          btn.style.backgroundColor = "#2563eb";
+          if (placeholder) placeholder.style.display = 'block';
+        }).catch(() => {});
+      }
+    }
+
+    // Step 1: Scan -> QR Local Verification -> Button Active
+    function verifyQrOnClient(scannedText) {
+      // Normalize: strip whitespace/newlines and uppercase, so a printed
+      // QR that has slightly different casing or a trailing space/newline
+      // still matches correctly instead of showing "Invalid QR Code".
+      const cleanText = scannedText.trim().toUpperCase().replace(/\s+/g, '');
+      const normalizedValid = VALID_TOKENS.map(t => t.toUpperCase().replace(/\s+/g, ''));
+
+      console.log('Scanned QR raw text:', JSON.stringify(scannedText));
+
+      if (normalizedValid.includes(cleanText)) {
+        verifiedToken = cleanText;
+        const submitBtn = document.getElementById('submitBtn');
+        
+        submitBtn.disabled = false;
+        submitBtn.classList.add('active');
+        submitBtn.innerHTML = "✅ QR Verified! Click to Submit Attendance";
+        
+        alert("✅ Official QR Verified Successfully!\nअब Attendance Mark करने के लिए नीचे 'Submit Attendance' बटन पर क्लिक करें।");
+      } else {
+        alert("❌ QR Verification Failed! Invalid QR Code.");
+      }
+    }
+
+    // Step 2: Student Clicks Active Button -> Realtime Backend Attendance Call
+    async function submitRealtimeAttendance() {
+      if (!verifiedToken) {
+        alert("Pehle QR Code scan karke verify karein!");
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "⏳ Submitting Realtime Attendance...";
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/student/mark-attendance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roll_no: currentRollNo,
+            token: verifiedToken
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === 'success') {
+          document.getElementById('statusTitle').textContent = "Attendance Marked!";
+          
+          const infoBox = document.getElementById('infoBox');
+          infoBox.style.backgroundColor = "#dcfce7";
+          infoBox.style.borderColor = "#86efac";
+
+          document.getElementById('classTitle').textContent = `${result.subject || 'CSE Session'} (Present)`;
+          document.getElementById('classTitle').style.color = "#14532d";
+
+          document.getElementById('subText').textContent = `Marked at ${result.time}`;
+          document.getElementById('subText').style.color = "#15803d";
+
+          submitBtn.innerHTML = "🎉 Attendance Present Marked";
+          submitBtn.classList.remove('active');
+          
+          alert(`🎉 Realtime Success!\nRoll No: ${result.roll_no}\nTime: ${result.time}`);
+        } else {
+          alert("❌ Attendance Failed: " + (result.message || "Error submitting attendance"));
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "✅ QR Verified! Click to Submit Attendance";
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server Connection Error! Ensure Flask backend app.py is running.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "✅ QR Verified! Click to Submit Attendance";
+      }
+    }
+  </script>
+</body>
+</html>

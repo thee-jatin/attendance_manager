@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Management System</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef4ff, #f8fafc);
+            display: flex;
+            flex-direction: column;
+            color: #172033;
+        }
+
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 25px;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .college-logo {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+        }
+
+        .college-info {
+            text-align: left;
+        }
+
+        .college-name {
+            font-size: 21px;
+            font-weight: 800;
+            color: #173b76;
+        }
+
+        .college-subtitle {
+            margin-top: 3px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 45px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            background: #173b76;
+            color: white;
+            font-size: 31px;
+            box-shadow: 0 10px 25px rgba(23, 59, 118, 0.18);
+        }
+
+        h1 {
+            font-size: 31px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .description {
+            margin: 10px auto 35px;
+            max-width: 560px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        .role-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+            max-width: 720px;
+            margin: auto;
+        }
+
+        .role-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 30px 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: 0.25s ease;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.10);
+        }
+
+        .role-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            font-size: 27px;
+        }
+
+        .teacher-icon {
+            background: #e8f0ff;
+            color: #1d4ed8;
+        }
+
+        .student-icon {
+            background: #e9f9ef;
+            color: #15803d;
+        }
+
+        .role-card h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .role-card p {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #64748b;
+            min-height: 40px;
+        }
+
+        .continue {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .teacher-card .continue { color: #1d4ed8; }
+        .student-card .continue { color: #15803d; }
+
+        .info-box {
+            margin: 30px auto 0;
+            max-width: 720px;
+            padding: 13px 18px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .info-box i {
+            color: #2563eb;
+            margin-right: 6px;
+        }
+
+        .footer {
+            background: #173b76;
+            color: #ffffff;
+            text-align: center;
+            padding: 13px 10px;
+            font-size: 12px;
+        }
+
+        .footer span { opacity: 0.85; }
+
+        @media (max-width: 650px) {
+            .header { padding: 15px; }
+            .header-content { gap: 10px; }
+            .college-logo { width: 52px; height: 52px; }
+            .college-name { font-size: 16px; }
+            .college-subtitle { font-size: 10px; }
+            .main { padding: 35px 16px; }
+            .welcome-icon { width: 62px; height: 62px; font-size: 26px; }
+            h1 { font-size: 25px; }
+            .description { font-size: 13px; margin-bottom: 28px; }
+            .role-container { grid-template-columns: 1fr; max-width: 400px; gap: 15px; }
+            .role-card { padding: 23px 20px; }
+            .role-card p { min-height: auto; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <!-- Agar logo.png isi folder mein hai to ye direct kaam karega.
+                 (Windows ka poora C:\ path yahan kaam nahi karta -
+                 image sirf isi folder ya website ke andar se load hoti hai) -->
+            <img src="logo.png" alt="SSLD Logo" class="college-logo">
+
+            <div class="college-info">
+                <div class="college-name">SSLD Varshney Engineering College</div>
+                <div class="college-subtitle">Attendance Management System</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+
+            <div class="welcome-icon">
+                <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+
+            <h1>Welcome to Attendance Portal</h1>
+
+            <p class="description">
+                Please select your role to continue.
+                Choose Teacher for faculty access or Student
+                for student attendance services.
+            </p>
+
+            <div class="role-container">
+
+                <!-- Plain filename - koi Flask route nahi, seedha file khulegi -->
+                <a href="teacher_login.html" class="role-card teacher-card">
+                    <div class="role-icon teacher-icon">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <h2>Teacher</h2>
+                    <p>Access faculty dashboard, start attendance sessions and manage student attendance.</p>
+                    <div class="continue">
+                        Continue as Teacher
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="student_login.html" class="role-card student-card">
+                    <div class="role-icon student-icon">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <h2>Student</h2>
+                    <p>Login to access your student portal and mark attendance during active sessions.</p>
+                    <div class="continue">
+                        Continue as Student
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </a>
+
+            </div>
+
+            <div class="info-box">
+                <i class="fa-solid fa-circle-info"></i>
+                Select the appropriate portal according to your role.
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <span>Powered by Jatin &amp; Anshul &nbsp;•&nbsp; Attendance Management System</span>
+    </footer>
+
+</body>
+</html>

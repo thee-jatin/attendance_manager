@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard - QR Attendance</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f8; display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; }
+    
+    .header { background-color: #1e3a8a; color: white; text-align: center; padding: 20px 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .header h1 { font-size: 24px; font-weight: 800; }
+    .header-sub { font-size: 13px; color: #bfdbfe; margin-top: 4px; }
+    
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; width: 100%; }
+    
+    .profile-card { background: white; padding: 18px 24px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+    .profile-info { display: flex; align-items: center; gap: 16px; }
+    .profile-avatar { width: 50px; height: 50px; background-color: #1e3a8a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; }
+    .profile-name { font-size: 18px; font-weight: 700; color: #111827; }
+    .profile-meta { font-size: 13px; color: #4b5563; margin-top: 2px; }
+    .subject-tag { display: inline-block; background-color: #dbeafe; color: #1e40af; font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: 12px; margin-left: 6px; }
+    
+    .btn-logout { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e5e7eb; }
+    .card-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 14px; }
+    
+    .readonly-field { background-color: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; font-size: 13px; color: #374151; font-weight: 600; margin-bottom: 12px; }
+    
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    .form-group select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; background-color: white; }
+    
+    .btn-start { width: 100%; background-color: #16a34a; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .btn-start:hover { background-color: #15803d; }
+
+    .table-container { max-height: 380px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th { background-color: #f8fafc; padding: 10px 12px; color: #475569; font-weight: 600; position: sticky; top: 0; border-bottom: 1px solid #e5e7eb; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+    
+    .badge-present { background-color: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+    .badge-pending { background-color: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+    .btn-override { background-color: #2563eb; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+
+    .footer { background-color: #1e3a8a; color: white; text-align: center; padding: 12px; font-size: 12px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <div>
+    <div class="header">
+      <h1>SSLD Varshney Engineering College</h1>
+      <div class="header-sub">Teacher Portal - Customized Faculty Dashboard</div>
+    </div>
+
+    <div class="container">
+      <!-- Auto-Detected Profile Section -->
+      <div class="profile-card">
+        <div class="profile-info">
+          <div class="profile-avatar" id="avatarInitial">T</div>
+          <div>
+            <div class="profile-name" id="dispTeacherName">Loading Teacher...</div>
+            <div class="profile-meta">
+              ID: <span id="dispTeacherId" style="font-weight:600;">--</span> | 
+              Subject: <span class="subject-tag" id="dispSubject">--</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="grid">
+        <!-- Control Panel: Single Select for Lecture Number -->
+        <div class="card">
+          <div class="card-title">🚀 Start Attendance Session</div>
+          
+          <label style="font-size: 11px; font-weight:600; color:#6b7280;">ASSIGNED SUBJECT</label>
+          <div class="readonly-field" id="boxSubject">--</div>
+
+          <div class="form-group">
+            <label>Select Lecture Number</label>
+            <select id="lectureSelect">
+              <option value="Lecture 01">Lecture 01</option>
+              <option value="Lecture 02">Lecture 02</option>
+              <option value="Lecture 03">Lecture 03</option>
+              <option value="Lecture 04">Lecture 04</option>
+              <option value="Lecture 05">Lecture 05</option>
+              <option value="Lecture 06">Lecture 06</option>
+            </select>
+          </div>
+
+          <button class="btn-start" onclick="startSession()">▶ Activate QR Session</button>
+          
+          <div id="sessionStatus" style="margin-top: 14px; font-size: 12px; text-align: center;"></div>
+        </div>
+
+        <!-- Filtered Subject Attendance Table -->
+        <div class="card">
+          <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>📊 Live Subject Attendance</span>
+            <span style="font-size:11px; color:#16a34a; font-weight:normal;">🟢 Auto Refresh (3s)</span>
+          </div>
+
+          <!-- Date Filter + Download Controls -->
+          <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-bottom:14px;">
+            <div>
+              <label style="display:block; font-size:11px; font-weight:600; color:#6b7280; margin-bottom:4px;">View Date</label>
+              <input type="date" id="filterDate" style="padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:13px;">
+            </div>
+            <button onclick="applyDateFilter()" style="background-color:#2563eb; color:white; border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">🔍 View</button>
+            <button onclick="goToToday()" style="background-color:#f3f4f6; color:#374151; border:1px solid #d1d5db; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">📅 Today</button>
+            <button onclick="downloadCSV()" style="background-color:#16a34a; color:white; border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-left:auto;">⬇ Download Sheet</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Student Name</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="recordsTableBody">
+                <tr>
+                  <td colspan="5" style="text-align:center; color:#9ca3af; padding: 20px;">Loading student records...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by Anshul, Jatin</div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:5000/api';
+
+    // Auto-detect login credentials from localStorage
+    const teacherId = localStorage.getItem('teacher_id');
+    const teacherName = localStorage.getItem('teacher_name');
+    const teacherSubject = localStorage.getItem('teacher_subject');
+
+    // Holds whatever is currently shown on screen, used by the CSV
+    // download button so it exports exactly what the teacher is viewing.
+    let currentRecords = [];
+
+    function getTodayStr() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if logged in
+      if (!teacherId || !teacherSubject) {
+        alert('Please login first!');
+        window.location.href = 'teacher_login.html';
+        return;
+      }
+
+      // Fill Readonly Header & Control Details
+      document.getElementById('dispTeacherName').textContent = teacherName || 'Faculty Member';
+      document.getElementById('dispTeacherId').textContent = teacherId;
+      document.getElementById('dispSubject').textContent = teacherSubject;
+      document.getElementById('boxSubject').textContent = teacherSubject;
+      document.getElementById('avatarInitial').textContent = (teacherName || 'T').charAt(0).toUpperCase();
+
+      // Default the date-filter box to today
+      document.getElementById('filterDate').value = getTodayStr();
+
+      // Fetch subject-specific attendance
+      fetchMySubjectAttendance();
+      setInterval(fetchMySubjectAttendance, 3000);
+    });
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'teacher_login.html';
+    }
+
+    function applyDateFilter() {
+      fetchMySubjectAttendance();
+    }
+
+    function goToToday() {
+      document.getElementById('filterDate').value = getTodayStr();
+      fetchMySubjectAttendance();
+    }
+
+    async function startSession() {
+      const selectedLecture = document.getElementById('lectureSelect').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/teacher/start-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            teacher_id: teacherId,
+            teacher_name: teacherName,
+            subject: teacherSubject,
+            lecture: selectedLecture,
+            duration_seconds: 600
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          document.getElementById('sessionStatus').innerHTML = `
+            <span style="color:#16a34a; font-weight:bold;">✅ QR Session Active!</span><br>
+            Subject: ${teacherSubject} (${selectedLecture})
+          `;
+          alert(`Session started for ${teacherSubject} - ${selectedLecture}`);
+        } else {
+          alert('Failed to start session: ' + data.message);
+        }
+      } catch (err) {
+        alert('Server Connection Error!');
+      }
+    }
+
+    async function fetchMySubjectAttendance() {
+      try {
+        const selectedDate = document.getElementById('filterDate').value || getTodayStr();
+        const isToday = selectedDate === getTodayStr();
+
+        const res = await fetch(`${API_BASE}/teacher/live-records?subject=${encodeURIComponent(teacherSubject)}&date=${encodeURIComponent(selectedDate)}`);
+        const result = await res.json();
+
+        if (res.ok && result.status === 'success') {
+          currentRecords = result.data || [];
+          const tbody = document.getElementById('recordsTableBody');
+
+          if (currentRecords.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">No students enrolled for this subject.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = currentRecords.map(row => {
+            const isPresent = row.status === 'Present';
+            const statusBadge = isPresent 
+              ? `<span class="badge-present">Present (${row.time_marked})</span>` 
+              : `<span class="badge-pending">Pending</span>`;
+
+            // Manual "Mark Present" override sirf aaj ki date ke liye
+            // dikhega — purani tareekh ki attendance ko galti se badalne
+            // se bachane ke liye.
+            let actionBtn;
+            if (isPresent) {
+              actionBtn = `<span style="color:#9ca3af; font-size:11px;">Marked</span>`;
+            } else if (isToday) {
+              actionBtn = `<button class="btn-override" onclick="manualOverride('${row.roll_no}')">Mark Present</button>`;
+            } else {
+              actionBtn = `<span style="color:#9ca3af; font-size:11px;">—</span>`;
+            }
+
+            return `
+              <tr>
+                <td><b>${row.roll_no}</b></td>
+                <td>${row.name}</td>
+                <td>${row.date}</td>
+                <td>${statusBadge}</td>
+                <td>${actionBtn}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (err) {}
+    }
+
+    function downloadCSV() {
+      if (!currentRecords || currentRecords.length === 0) {
+        alert('Koi data nahi hai download karne ke liye!');
+        return;
+      }
+
+      const selectedDate = document.getElementById('filterDate').value || getTodayStr();
+
+      let csv = 'Roll No,Student Name,Date,Status,Time Marked\n';
+      currentRecords.forEach(row => {
+        // Name ko quotes mein rakha hai taaki agar naam mein comma ho toh CSV na tootey
+        csv += `${row.roll_no},"${row.name}",${row.date},${row.status},${row.time_marked}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${teacherSubject}_attendance_${selectedDate}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function manualOverride(rollNo) {
+      if (!confirm(`Mark Present for Roll No: ${rollNo}?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/teacher/manual-override`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roll_no: rollNo, subject: teacherSubject })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          fetchMySubjectAttendance();
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert('Server Error!');
+      }
+    }
+  </script>
+</body>
+</html>
