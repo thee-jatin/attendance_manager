@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,9 +95,33 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label>Room Type</label>
+            <select id="roomTypeSelect">
+              <option value="class" selected>🏫 Classroom</option>
+              <option value="lab">🖥️ Lab</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Classroom Radius (meters)</label>
+            <select id="radiusSelect">
+              <option value="60">60m (Small Building)</option>
+              <option value="80" selected>80m (Normal Building)</option>
+              <option value="120">120m (Large/Multi-Wing Building)</option>
+            </select>
+          </div>
+
           <button class="btn-start" onclick="startSession()">▶ Activate QR Session</button>
           
           <div id="sessionStatus" style="margin-top: 14px; font-size: 12px; text-align: center;"></div>
+
+          <!-- NEW: Dynamic 4-digit code display + countdown -->
+          <div id="codeDisplayBox" style="display:none; margin-top:16px; background:#fffbeb; border:2px dashed #d97706; border-radius:12px; padding:16px; text-align:center;">
+            <div style="font-size:11px; font-weight:700; color:#92400e; letter-spacing:0.5px;">📢 WRITE OR ANNOUNCE THIS CODE ON THE BLACKBOARD</div>
+            <div id="dynamicCodeText" style="font-size:38px; font-weight:900; color:#92400e; letter-spacing:6px; margin:8px 0;">----</div>
+            <div style="font-size:12px; color:#b45309; font-weight:700;">⏳ Expires in <span id="codeCountdown">--</span></div>
+          </div>
         </div>
 
         <!-- Filtered Subject Attendance Table -->
@@ -201,8 +225,37 @@
       fetchMySubjectAttendance();
     }
 
+    let codeCountdownInterval = null;
+
+    // Wraps the browser's geolocation callback-style API in a Promise,
+    // so startSession() can simply `await` the teacher's current
+    // location before sending it to the backend.
+    function getCurrentLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          }),
+          () => resolve(null), // permission denied / unavailable — geo-fencing simply skips
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      });
+    }
+
     async function startSession() {
       const selectedLecture = document.getElementById('lectureSelect').value;
+      const selectedRadius = document.getElementById('radiusSelect').value;
+      const selectedRoomType = document.getElementById('roomTypeSelect').value;
+
+      document.getElementById('sessionStatus').innerHTML =
+        `<span style="color:#6b7280;">📍 Fetching location...</span>`;
+
+      const location = await getCurrentLocation();
 
       try {
         const res = await fetch(`${API_BASE}/teacher/start-session`, {
@@ -213,23 +266,60 @@
             teacher_name: teacherName,
             subject: teacherSubject,
             lecture: selectedLecture,
-            duration_seconds: 600
+            duration_seconds: 600,
+            latitude: location ? location.latitude : null,
+            longitude: location ? location.longitude : null,
+            radius_meters: selectedRadius,
+            room_type: selectedRoomType
           })
         });
 
         const data = await res.json();
         if (res.ok && data.status === 'success') {
+          const geoNote = data.geo_fencing_active
+            ? `📍 Geo-fencing ON (${data.radius_meters}m radius)`
+            : `⚠️ Location not found — geo-fencing is OFF for this session`;
+
+          const roomLabel = data.room_type === 'lab' ? '🖥️ Lab' : '🏫 Classroom';
+
           document.getElementById('sessionStatus').innerHTML = `
-            <span style="color:#16a34a; font-weight:bold;">✅ QR Session Active!</span><br>
-            Subject: ${teacherSubject} (${selectedLecture})
+            <span style="color:#16a34a; font-weight:bold;">✅ QR Session Active! (${roomLabel})</span><br>
+            Subject: ${teacherSubject} (${selectedLecture})<br>
+            <span style="font-size:11px;">${geoNote}</span>
           `;
-          alert(`Session started for ${teacherSubject} - ${selectedLecture}`);
+
+          showDynamicCode(data.dynamic_code, data.code_valid_seconds);
         } else {
           alert('Failed to start session: ' + data.message);
         }
       } catch (err) {
         alert('Server Connection Error!');
       }
+    }
+
+    function showDynamicCode(code, validSeconds) {
+      const box = document.getElementById('codeDisplayBox');
+      const codeText = document.getElementById('dynamicCodeText');
+      const countdownText = document.getElementById('codeCountdown');
+
+      box.style.display = 'block';
+      codeText.textContent = code;
+
+      if (codeCountdownInterval) clearInterval(codeCountdownInterval);
+
+      let remaining = validSeconds;
+      countdownText.textContent = `${remaining}s`;
+
+      codeCountdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(codeCountdownInterval);
+          countdownText.textContent = 'Expired';
+          codeText.style.opacity = '0.4';
+        } else {
+          countdownText.textContent = `${remaining}s`;
+        }
+      }, 1000);
     }
 
     async function fetchMySubjectAttendance() {
@@ -255,9 +345,9 @@
               ? `<span class="badge-present">Present (${row.time_marked})</span>` 
               : `<span class="badge-pending">Pending</span>`;
 
-            // Manual "Mark Present" override sirf aaj ki date ke liye
-            // dikhega — purani tareekh ki attendance ko galti se badalne
-            // se bachane ke liye.
+            // Manual "Mark Present" override is only shown for today's
+            // date — this prevents accidentally editing attendance for
+            // a past date.
             let actionBtn;
             if (isPresent) {
               actionBtn = `<span style="color:#9ca3af; font-size:11px;">Marked</span>`;
@@ -283,7 +373,7 @@
 
     function downloadCSV() {
       if (!currentRecords || currentRecords.length === 0) {
-        alert('Koi data nahi hai download karne ke liye!');
+        alert('No data available to download!');
         return;
       }
 
@@ -291,7 +381,7 @@
 
       let csv = 'Roll No,Student Name,Date,Status,Time Marked\n';
       currentRecords.forEach(row => {
-        // Name ko quotes mein rakha hai taaki agar naam mein comma ho toh CSV na tootey
+        // Name is wrapped in quotes so the CSV doesn't break if a name contains a comma
         csv += `${row.roll_no},"${row.name}",${row.date},${row.status},${row.time_marked}\n`;
       });
 

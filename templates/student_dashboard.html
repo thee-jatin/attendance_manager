@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,6 +123,13 @@
 
           <div>
             <button class="btn-camera" id="scanBtn" onclick="toggleScanner()">📷 Open Camera</button>
+
+            <!-- NEW: Factor 2 — Dynamic 4-digit code, unlocks after QR scan -->
+            <div id="codeInputBox" style="display:none; margin-top:12px;">
+              <label style="display:block; font-size:11px; font-weight:700; color:#374151; margin-bottom:6px;">Enter the 4-Digit Code Written on the Blackboard</label>
+              <input type="text" id="codeInput" maxlength="4" inputmode="numeric" placeholder="0000"
+                     style="width:100%; padding:12px; font-size:22px; letter-spacing:8px; text-align:center; border:2px solid #2563eb; border-radius:10px; font-weight:800;">
+            </div>
             
             <!-- Dynamic Active Button after Verification -->
             <button class="btn-submit-attendance" id="submitBtn" disabled onclick="submitRealtimeAttendance()">
@@ -164,7 +171,13 @@
   <script>
     let currentRollNo = "";
     let verifiedToken = "";
-    const VALID_TOKENS = ["ATTANDANCE_MARK", "ATTENDANCE_MARK"];
+    // Both QR types are accepted on the client side (Class + Lab) —
+    // the actual check for "is this the correct QR for this session"
+    // happens on the backend when attendance is submitted.
+    const VALID_TOKENS = [
+      "ATTENDANCE_MARK_CLASS", "ATTANDANCE_MARK_CLASS",
+      "ATTENDANCE_MARK_LAB", "ATTANDANCE_MARK_LAB"
+    ];
 
     document.addEventListener('DOMContentLoaded', () => {
       const currentDateElement = document.getElementById('currentDate');
@@ -241,7 +254,7 @@
       }
     }
 
-    // Step 1: Scan -> QR Local Verification -> Button Active
+    // Step 1: Scan -> QR Local Verification -> Code Box Unlocks
     function verifyQrOnClient(scannedText) {
       // Normalize: strip whitespace/newlines and uppercase, so a printed
       // QR that has slightly different casing or a trailing space/newline
@@ -253,27 +266,60 @@
 
       if (normalizedValid.includes(cleanText)) {
         verifiedToken = cleanText;
+
+        // NEW: Attendance is not marked right after the QR scan — the
+        // 4-digit code box unlocks first (Factor 2).
+        document.getElementById('codeInputBox').style.display = 'block';
+
         const submitBtn = document.getElementById('submitBtn');
-        
         submitBtn.disabled = false;
         submitBtn.classList.add('active');
-        submitBtn.innerHTML = "✅ QR Verified! Click to Submit Attendance";
-        
-        alert("✅ Official QR Verified Successfully!\nअब Attendance Mark करने के लिए नीचे 'Submit Attendance' बटन पर क्लिक करें।");
+        submitBtn.innerHTML = "✅ Now Enter the Code and Submit";
+
+        alert("✅ Official QR Verified Successfully!\nNow enter the 4-digit code from the blackboard and click 'Submit Attendance'.");
       } else {
         alert("❌ QR Verification Failed! Invalid QR Code.");
       }
     }
 
-    // Step 2: Student Clicks Active Button -> Realtime Backend Attendance Call
+    // Wraps browser geolocation in a Promise (Factor 3 — Geo-Fencing)
+    function getCurrentLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          }),
+          () => resolve(null),
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      });
+    }
+
+    // Step 2: Student enters code -> GPS captured -> Realtime Backend Call
     async function submitRealtimeAttendance() {
       if (!verifiedToken) {
-        alert("Pehle QR Code scan karke verify karein!");
+        alert("Please scan and verify the QR Code first!");
+        return;
+      }
+
+      const enteredCode = document.getElementById('codeInput').value.trim();
+
+      if (!enteredCode || enteredCode.length !== 4) {
+        alert("Blackboard par likha 4-digit code sahi se daalein!");
         return;
       }
 
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
+      submitBtn.innerHTML = "📍 Checking location...";
+
+      const location = await getCurrentLocation();
+
       submitBtn.innerHTML = "⏳ Submitting Realtime Attendance...";
 
       try {
@@ -282,7 +328,10 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             roll_no: currentRollNo,
-            token: verifiedToken
+            token: verifiedToken,
+            code: enteredCode,
+            latitude: location ? location.latitude : null,
+            longitude: location ? location.longitude : null
           })
         });
 
@@ -308,13 +357,13 @@
         } else {
           alert("❌ Attendance Failed: " + (result.message || "Error submitting attendance"));
           submitBtn.disabled = false;
-          submitBtn.innerHTML = "✅ QR Verified! Click to Submit Attendance";
+          submitBtn.innerHTML = "✅ Now Enter the Code and Submit";
         }
       } catch (err) {
         console.error(err);
         alert("Server Connection Error! Ensure Flask backend app.py is running.");
         submitBtn.disabled = false;
-        submitBtn.innerHTML = "✅ QR Verified! Click to Submit Attendance";
+        submitBtn.innerHTML = "✅ Now Enter the Code and Submit";
       }
     }
   </script>

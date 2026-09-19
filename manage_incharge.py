@@ -26,12 +26,11 @@ def create_table():
     conn = get_db_connection()
 
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS teachers (
+        CREATE TABLE IF NOT EXISTS class_incharges (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            subject TEXT NOT NULL
+            password TEXT NOT NULL
         )
     """)
 
@@ -40,21 +39,20 @@ def create_table():
 
 
 # ============================================================
-# ADD TEACHER
+# ADD INCHARGE
 # ============================================================
 
-def add_teacher():
+def add_incharge():
 
     print("\n--------------------------------")
-    print("ADD TEACHER")
+    print("ADD CLASS INCHARGE")
     print("--------------------------------")
 
-    name = input("Enter Teacher Name: ").strip()
+    name = input("Enter Incharge Name: ").strip()
     username = input("Enter Username / ID: ").strip()
     password = input("Enter Password: ").strip()
-    subject = input("Enter Subject: ").strip()
 
-    if not name or not username or not password or not subject:
+    if not name or not username or not password:
 
         print("\nAll fields are required!")
         return
@@ -67,26 +65,24 @@ def add_teacher():
 
         conn.execute(
             """
-            INSERT INTO teachers
+            INSERT INTO class_incharges
             (
                 name,
                 username,
-                password,
-                subject
+                password
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?)
             """,
             (
                 name,
                 username,
-                hashed_password,
-                subject
+                hashed_password
             )
         )
 
         conn.commit()
 
-        print("\nTeacher added successfully!")
+        print("\nClass Incharge added successfully!")
 
     except sqlite3.IntegrityError:
 
@@ -98,13 +94,13 @@ def add_teacher():
 
 
 # ============================================================
-# LIST TEACHERS
+# LIST INCHARGES
 # ============================================================
 
-def list_teachers():
+def list_incharges():
 
     print("\n--------------------------------")
-    print("TEACHER LIST")
+    print("CLASS INCHARGE LIST")
     print("--------------------------------")
 
     conn = get_db_connection()
@@ -114,9 +110,8 @@ def list_teachers():
         SELECT
             id,
             name,
-            username,
-            subject
-        FROM teachers
+            username
+        FROM class_incharges
         ORDER BY id ASC
         """
     ).fetchall()
@@ -125,7 +120,7 @@ def list_teachers():
 
     if not rows:
 
-        print("\nNo Teacher found.")
+        print("\nNo Class Incharge found.")
         return
 
     print()
@@ -135,29 +130,26 @@ def list_teachers():
         print(
             f"ID: {row['id']} | "
             f"Name: {row['name']} | "
-            f"Username: {row['username']} | "
-            f"Subject: {row['subject']}"
+            f"Username: {row['username']}"
         )
 
 
 # ============================================================
-# UPDATE TEACHER
+# UPDATE INCHARGE
 # ============================================================
 
-def update_teacher():
+def update_incharge():
 
     print("\n--------------------------------")
-    print("UPDATE TEACHER")
+    print("UPDATE CLASS INCHARGE")
     print("--------------------------------")
 
-    list_teachers()
+    list_incharges()
 
     try:
-
-        teacher_id = int(
-            input("\nEnter Teacher ID to update: ")
+        incharge_id = int(
+            input("\nEnter Incharge ID to update: ")
         )
-
     except ValueError:
 
         print("\nInvalid ID!")
@@ -165,48 +157,41 @@ def update_teacher():
 
     conn = get_db_connection()
 
-    teacher = conn.execute(
+    incharge = conn.execute(
         """
         SELECT *
-        FROM teachers
+        FROM class_incharges
         WHERE id = ?
         """,
-        (teacher_id,)
+        (incharge_id,)
     ).fetchone()
 
-    if not teacher:
+    if not incharge:
 
         conn.close()
 
-        print("\nTeacher not found!")
+        print("\nIncharge not found!")
         return
 
     print("\nPress ENTER to keep old value.")
 
     new_name = input(
-        f"Name [{teacher['name']}]: "
+        f"Name [{incharge['name']}]: "
     ).strip()
 
     new_username = input(
-        f"Username [{teacher['username']}]: "
+        f"Username [{incharge['username']}]: "
     ).strip()
 
     new_password = input(
         "New Password [leave blank to keep old]: "
     ).strip()
 
-    new_subject = input(
-        f"Subject [{teacher['subject']}]: "
-    ).strip()
-
     if not new_name:
-        new_name = teacher["name"]
+        new_name = incharge["name"]
 
     if not new_username:
-        new_username = teacher["username"]
-
-    if not new_subject:
-        new_subject = teacher["subject"]
+        new_username = incharge["username"]
 
     try:
 
@@ -218,20 +203,18 @@ def update_teacher():
 
             conn.execute(
                 """
-                UPDATE teachers
+                UPDATE class_incharges
                 SET
                     name = ?,
                     username = ?,
-                    password = ?,
-                    subject = ?
+                    password = ?
                 WHERE id = ?
                 """,
                 (
                     new_name,
                     new_username,
                     hashed_password,
-                    new_subject,
-                    teacher_id
+                    incharge_id
                 )
             )
 
@@ -239,24 +222,22 @@ def update_teacher():
 
             conn.execute(
                 """
-                UPDATE teachers
+                UPDATE class_incharges
                 SET
                     name = ?,
-                    username = ?,
-                    subject = ?
+                    username = ?
                 WHERE id = ?
                 """,
                 (
                     new_name,
                     new_username,
-                    new_subject,
-                    teacher_id
+                    incharge_id
                 )
             )
 
         conn.commit()
 
-        print("\nTeacher updated successfully!")
+        print("\nClass Incharge updated successfully!")
 
     except sqlite3.IntegrityError:
 
@@ -268,23 +249,21 @@ def update_teacher():
 
 
 # ============================================================
-# DELETE TEACHER
+# DELETE INCHARGE
 # ============================================================
 
-def delete_teacher():
+def delete_incharge():
 
     print("\n--------------------------------")
-    print("DELETE TEACHER")
+    print("DELETE CLASS INCHARGE")
     print("--------------------------------")
 
-    list_teachers()
+    list_incharges()
 
     try:
-
-        teacher_id = int(
-            input("\nEnter Teacher ID to delete: ")
+        incharge_id = int(
+            input("\nEnter Incharge ID to delete: ")
         )
-
     except ValueError:
 
         print("\nInvalid ID!")
@@ -292,39 +271,39 @@ def delete_teacher():
 
     conn = get_db_connection()
 
-    teacher = conn.execute(
+    incharge = conn.execute(
         """
         SELECT *
-        FROM teachers
+        FROM class_incharges
         WHERE id = ?
         """,
-        (teacher_id,)
+        (incharge_id,)
     ).fetchone()
 
-    if not teacher:
+    if not incharge:
 
         conn.close()
 
-        print("\nTeacher not found!")
+        print("\nIncharge not found!")
         return
 
     confirm = input(
-        f"\nDelete '{teacher['name']}'? (y/n): "
+        f"\nDelete '{incharge['name']}'? (y/n): "
     ).strip().lower()
 
     if confirm == "y":
 
         conn.execute(
             """
-            DELETE FROM teachers
+            DELETE FROM class_incharges
             WHERE id = ?
             """,
-            (teacher_id,)
+            (incharge_id,)
         )
 
         conn.commit()
 
-        print("\nTeacher deleted successfully!")
+        print("\nClass Incharge deleted successfully!")
 
     else:
 
@@ -345,12 +324,12 @@ def main():
 
         print("\n")
         print("======================================")
-        print("        TEACHER MANAGEMENT")
+        print("     CLASS INCHARGE MANAGEMENT")
         print("======================================")
-        print("1. Add Teacher")
-        print("2. List Teachers")
-        print("3. Update Teacher")
-        print("4. Delete Teacher")
+        print("1. Add Class Incharge")
+        print("2. List Class Incharges")
+        print("3. Update Class Incharge")
+        print("4. Delete Class Incharge")
         print("5. Exit")
         print("======================================")
 
@@ -360,19 +339,19 @@ def main():
 
         if choice == "1":
 
-            add_teacher()
+            add_incharge()
 
         elif choice == "2":
 
-            list_teachers()
+            list_incharges()
 
         elif choice == "3":
 
-            update_teacher()
+            update_incharge()
 
         elif choice == "4":
 
-            delete_teacher()
+            delete_incharge()
 
         elif choice == "5":
 

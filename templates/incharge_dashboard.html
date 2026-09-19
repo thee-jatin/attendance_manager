@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Class Incharge Dashboard</title>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+
+      margin: 0;
+      padding: 0;
+
+      font-family:
+        "Segoe UI",
+        Tahoma,
+        Geneva,
+        Verdana,
+        sans-serif;
+    }
+
+
+    body {
+      background: #f5f7fb;
+
+      min-height: 100vh;
+
+      color: #1f2937;
+    }
+
+
+    header {
+      background:
+        linear-gradient(
+          135deg,
+          #92400e,
+          #b45309
+        );
+
+      color: white;
+
+      text-align: center;
+
+      padding: 22px;
+    }
+
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+
+    header p {
+      margin-top: 5px;
+
+      color: #fef3c7;
+
+      font-size: 13px;
+    }
+
+
+    .container {
+      width: 100%;
+
+      max-width: 1200px;
+
+      margin: auto;
+
+      padding: 22px;
+    }
+
+
+    .profile {
+      background: white;
+
+      border: 1px solid #e5e7eb;
+
+      border-radius: 16px;
+
+      padding: 18px 22px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      margin-bottom: 20px;
+    }
+
+
+    .profile-left {
+      display: flex;
+
+      align-items: center;
+
+      gap: 15px;
+    }
+
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+
+      border-radius: 50%;
+
+      background: #b45309;
+
+      color: white;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 20px;
+
+      font-weight: 800;
+    }
+
+
+    .name {
+      font-size: 18px;
+
+      font-weight: 800;
+    }
+
+
+    .designation {
+      color: #6b7280;
+
+      font-size: 12px;
+
+      margin-top: 3px;
+    }
+
+
+    .logout {
+      background: #fee2e2;
+
+      border: 1px solid #fca5a5;
+
+      color: #991b1b;
+
+      padding: 8px 15px;
+
+      border-radius: 8px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+
+    .stats {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4,1fr);
+
+      gap: 15px;
+
+      margin-bottom: 20px;
+    }
+
+
+    .stat {
+      background: white;
+
+      border:
+        1px solid #e5e7eb;
+
+      border-radius: 14px;
+
+      padding: 20px;
+    }
+
+
+    .stat-icon {
+      font-size: 23px;
+
+      margin-bottom: 10px;
+    }
+
+
+    .stat-value {
+      font-size: 25px;
+
+      font-weight: 800;
+
+      color: #111827;
+    }
+
+
+    .stat-label {
+      font-size: 12px;
+
+      color: #6b7280;
+
+      margin-top: 4px;
+    }
+
+
+    .main-card {
+      background: white;
+
+      border:
+        1px solid #e5e7eb;
+
+      border-radius: 16px;
+
+      padding: 22px;
+    }
+
+
+    .title-row {
+      display: flex;
+
+      justify-content:
+        space-between;
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin-bottom: 18px;
+    }
+
+
+    .title {
+      font-size: 18px;
+
+      font-weight: 800;
+    }
+
+
+    .download {
+      background: #16a34a;
+
+      color: white;
+
+      border: none;
+
+      padding: 9px 14px;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      font-weight: 700;
+
+      font-size: 12px;
+    }
+
+
+    .filters {
+      display: grid;
+
+      grid-template-columns:
+        1.4fr 1fr 1fr auto;
+
+      gap: 10px;
+
+      margin-bottom: 18px;
+
+      padding: 15px;
+
+      background: #f8fafc;
+
+      border-radius: 10px;
+    }
+
+
+    .filter label {
+      display: block;
+
+      font-size: 11px;
+
+      color: #64748b;
+
+      font-weight: 800;
+
+      margin-bottom: 5px;
+    }
+
+
+    input,
+    select {
+      width: 100%;
+
+      height: 40px;
+
+      border:
+        1px solid #d1d5db;
+
+      border-radius: 7px;
+
+      padding: 8px 10px;
+
+      outline: none;
+
+      background: white;
+
+      font-size: 13px;
+    }
+
+
+    input:focus,
+    select:focus {
+      border-color: #b45309;
+    }
+
+
+    .view-btn {
+      align-self: end;
+
+      height: 40px;
+
+      padding:
+        0 15px;
+
+      border: none;
+
+      border-radius: 7px;
+
+      background: #b45309;
+
+      color: white;
+
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+
+    .table-container {
+      width: 100%;
+
+      overflow: auto;
+
+      max-height: 520px;
+
+      border:
+        1px solid #e5e7eb;
+
+      border-radius: 9px;
+    }
+
+
+    table {
+      width: 100%;
+
+      border-collapse:
+        collapse;
+
+      min-width: 750px;
+
+      font-size: 13px;
+    }
+
+
+    th {
+      position: sticky;
+
+      top: 0;
+
+      background: #f8fafc;
+
+      color: #475569;
+
+      text-align: left;
+
+      padding: 12px;
+
+      border-bottom:
+        1px solid #e5e7eb;
+    }
+
+
+    td {
+      padding: 12px;
+
+      border-bottom:
+        1px solid #f1f5f9;
+    }
+
+
+    tr:hover td {
+      background: #fffbeb;
+    }
+
+
+    .status-present {
+      display: inline-block;
+
+      background: #dcfce7;
+
+      color: #15803d;
+
+      padding:
+        4px 8px;
+
+      border-radius: 6px;
+
+      font-size: 11px;
+
+      font-weight: 800;
+    }
+
+
+    .status-pending {
+      display: inline-block;
+
+      background: #fef3c7;
+
+      color: #b45309;
+
+      padding:
+        4px 8px;
+
+      border-radius: 6px;
+
+      font-size: 11px;
+
+      font-weight: 800;
+    }
+
+
+    .view {
+      border: none;
+
+      background: #dbeafe;
+
+      color: #1d4ed8;
+
+      padding:
+        5px 10px;
+
+      border-radius: 6px;
+
+      cursor: pointer;
+
+      font-size: 11px;
+
+      font-weight: 800;
+    }
+
+
+    .empty {
+      text-align: center;
+
+      padding: 30px;
+
+      color: #9ca3af;
+    }
+
+
+    /* MODAL */
+
+    .modal {
+      display: none;
+
+      position: fixed;
+
+      inset: 0;
+
+      background:
+        rgba(0,0,0,0.45);
+
+      z-index: 100;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 15px;
+    }
+
+
+    .modal-box {
+      width: 100%;
+
+      max-width: 750px;
+
+      max-height: 90vh;
+
+      overflow: auto;
+
+      background: white;
+
+      border-radius: 16px;
+
+      padding: 24px;
+    }
+
+
+    .modal-header {
+      display: flex;
+
+      justify-content:
+        space-between;
+
+      align-items: center;
+
+      margin-bottom: 20px;
+    }
+
+
+    .modal-header h2 {
+      font-size: 19px;
+    }
+
+
+    .close {
+      border: none;
+
+      background: #f3f4f6;
+
+      width: 32px;
+      height: 32px;
+
+      border-radius: 50%;
+
+      cursor: pointer;
+
+      font-size: 18px;
+    }
+
+
+    .student-info {
+      background: #f8fafc;
+
+      border-radius: 10px;
+
+      padding: 15px;
+
+      margin-bottom: 15px;
+    }
+
+
+    .summary-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3,1fr);
+
+      gap: 10px;
+
+      margin-bottom: 20px;
+    }
+
+
+    .summary {
+      border:
+        1px solid #e5e7eb;
+
+      border-radius: 9px;
+
+      padding: 13px;
+
+      text-align: center;
+    }
+
+
+    .summary b {
+      display: block;
+
+      font-size: 20px;
+
+      margin-bottom: 3px;
+    }
+
+
+    .summary span {
+      color: #6b7280;
+
+      font-size: 11px;
+    }
+
+
+    .detail-table {
+      width: 100%;
+
+      border-collapse:
+        collapse;
+
+      font-size: 12px;
+    }
+
+
+    .detail-table th,
+    .detail-table td {
+      padding: 9px;
+
+      border-bottom:
+        1px solid #eee;
+
+      text-align: left;
+    }
+
+
+    footer {
+      margin-top: 35px;
+
+      background: #92400e;
+
+      color: white;
+
+      text-align: center;
+
+      padding: 12px;
+
+      font-size: 12px;
+    }
+
+
+    @media (max-width: 900px) {
+
+      .stats {
+        grid-template-columns:
+          repeat(2,1fr);
+      }
+
+      .filters {
+        grid-template-columns:
+          1fr 1fr;
+      }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+      .profile {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+      }
+
+      .logout {
+        width: 100%;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .title-row {
+        flex-direction: column;
+
+        align-items:
+          flex-start;
+      }
+
+      .download {
+        width: 100%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <header>
+
+    <h1>
+      SSLD Varshney Engineering College
+    </h1>
+
+    <p>
+      Class Incharge / HOD Portal
+    </p>
+
+  </header>
+
+
+  <main class="container">
+
+
+    <!-- PROFILE -->
+
+    <section class="profile">
+
+      <div class="profile-left">
+
+        <div
+          class="avatar"
+          id="avatar"
+        >
+          C
+        </div>
+
+        <div>
+
+          <div
+            class="name"
+            id="inchargeName"
+          >
+            Class Incharge
+          </div>
+
+          <div class="designation">
+            Complete Class Data Management
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="logout"
+        onclick="logout()"
+      >
+        Logout
+      </button>
+
+    </section>
+
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          👥
+        </div>
+
+        <div
+          class="stat-value"
+          id="studentCount"
+        >
+          0
+        </div>
+
+        <div class="stat-label">
+          Total Students
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          📚
+        </div>
+
+        <div
+          class="stat-value"
+          id="subjectCount"
+        >
+          0
+        </div>
+
+        <div class="stat-label">
+          Subjects
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          📅
+        </div>
+
+        <div
+          class="stat-value"
+          id="recordCount"
+        >
+          0
+        </div>
+
+        <div class="stat-label">
+          Data Records
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-icon">
+          🔎
+        </div>
+
+        <div
+          class="stat-value"
+          id="shownCount"
+        >
+          0
+        </div>
+
+        <div class="stat-label">
+          Filtered Records
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- MAIN DATA -->
+
+    <section class="main-card">
+
+
+      <div class="title-row">
+
+        <div class="title">
+          📊 Class Data Overview
+        </div>
+
+
+        <button
+          class="download"
+          onclick="downloadCSV()"
+        >
+          ⬇ Download Filtered Data
+        </button>
+
+      </div>
+
+
+
+      <!-- FILTERS -->
+
+      <div class="filters">
+
+
+        <div class="filter">
+
+          <label>
+            SEARCH STUDENT
+          </label>
+
+          <input
+            type="text"
+            id="search"
+            placeholder="Roll No or Student Name"
+            oninput="applyFilters()"
+          >
+
+        </div>
+
+
+        <div class="filter">
+
+          <label>
+            SUBJECT
+          </label>
+
+          <select
+            id="subjectFilter"
+            onchange="applyFilters()"
+          >
+
+            <option value="">
+              All Subjects
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="filter">
+
+          <label>
+            DATE
+          </label>
+
+          <input
+            type="date"
+            id="dateFilter"
+            onchange="applyFilters()"
+          >
+
+        </div>
+
+
+        <button
+          class="view-btn"
+          onclick="loadData()"
+        >
+          🔄 Refresh
+        </button>
+
+
+      </div>
+
+
+
+      <!-- TABLE -->
+
+      <div class="table-container">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Roll No
+              </th>
+
+              <th>
+                Student Name
+              </th>
+
+              <th>
+                Subject
+              </th>
+
+              <th>
+                Date
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Time
+              </th>
+
+              <th>
+                Details
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="dataBody">
+
+            <tr>
+
+              <td
+                colspan="7"
+                class="empty"
+              >
+                Loading class data...
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+
+
+  <footer>
+    Powered by Jatin & Anshul
+  </footer>
+
+
+
+  <!-- STUDENT DETAILS MODAL -->
+
+  <div
+    class="modal"
+    id="studentModal"
+  >
+
+    <div class="modal-box">
+
+
+      <div class="modal-header">
+
+        <h2>
+          👤 Student Details
+        </h2>
+
+        <button
+          class="close"
+          onclick="closeModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div
+        class="student-info"
+        id="studentInfo"
+      >
+        Loading...
+      </div>
+
+
+      <div
+        class="summary-grid"
+        id="summaryGrid"
+      ></div>
+
+
+      <h3
+        style="
+          font-size:15px;
+          margin-bottom:10px;
+        "
+      >
+        Subject-wise Data
+      </h3>
+
+
+      <table class="detail-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Subject
+            </th>
+
+            <th>
+              Total Records
+            </th>
+
+            <th>
+              Present
+            </th>
+
+            <th>
+              Last Marked
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="detailBody">
+
+        </tbody>
+
+      </table>
+
+
+    </div>
+
+  </div>
+
+
+
+  <script>
+
+    const API = 'http://127.0.0.1:5000/api';
+
+
+    const inchargeId =
+      localStorage.getItem(
+        "incharge_id"
+      );
+
+
+    const inchargeName =
+      localStorage.getItem(
+        "incharge_name"
+      );
+
+
+    let allData = [];
+
+    let filteredData = [];
+
+    let subjects = [];
+
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+
+        if (!inchargeId) {
+
+          alert(
+            "Please login first."
+          );
+
+          window.location.href =
+            "incharge_login.html";
+
+          return;
+        }
+
+
+        document.getElementById(
+          "inchargeName"
+        ).textContent =
+          inchargeName ||
+          "Class Incharge";
+
+
+        document.getElementById(
+          "avatar"
+        ).textContent =
+          (
+            inchargeName ||
+            "C"
+          )
+          .charAt(0)
+          .toUpperCase();
+
+
+        loadData();
+
+      }
+    );
+
+
+    async function loadData() {
+
+      try {
+
+        const date =
+          document.getElementById(
+            "dateFilter"
+          ).value;
+
+
+        let url =
+          `${API}/incharge/class-data`;
+
+
+        if (date) {
+
+          url +=
+            `?date=${encodeURIComponent(date)}`;
+
+        }
+
+
+        const response =
+          await fetch(url);
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          result.status !== "success"
+        ) {
+
+          throw new Error(
+            result.message ||
+            "Unable to load data"
+          );
+
+        }
+
+
+        allData =
+          result.data || [];
+
+
+        subjects =
+          result.subjects || [];
+
+
+        populateSubjects();
+
+
+        updateStats();
+
+
+        applyFilters();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+
+        document.getElementById(
+          "dataBody"
+        ).innerHTML = `
+
+          <tr>
+
+            <td
+              colspan="7"
+              class="empty"
+            >
+              Unable to load class data.
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+
+    }
+
+
+    function populateSubjects() {
+
+      const select =
+        document.getElementById(
+          "subjectFilter"
+        );
+
+
+      const current =
+        select.value;
+
+
+      select.innerHTML =
+        `<option value="">
+          All Subjects
+        </option>`;
+
+
+      subjects.forEach(
+        subject => {
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+
+          option.value =
+            subject;
+
+
+          option.textContent =
+            subject;
+
+
+          select.appendChild(
+            option
+          );
+
+        }
+      );
+
+
+      select.value =
+        current;
+    }
+
+
+    function updateStats() {
+
+      document.getElementById(
+        "studentCount"
+      ).textContent =
+        new Set(
+          allData.map(
+            x => x.roll_no
+          )
+        ).size;
+
+
+      document.getElementById(
+        "subjectCount"
+      ).textContent =
+        subjects.length;
+
+
+      document.getElementById(
+        "recordCount"
+      ).textContent =
+        allData.length;
+
+    }
+
+
+    function applyFilters() {
+
+      const search =
+        document.getElementById(
+          "search"
+        ).value
+          .trim()
+          .toLowerCase();
+
+
+      const subject =
+        document.getElementById(
+          "subjectFilter"
+        ).value;
+
+
+      const date =
+        document.getElementById(
+          "dateFilter"
+        ).value;
+
+
+      filteredData =
+        allData.filter(
+          row => {
+
+            const matchesSearch =
+              !search ||
+
+              String(
+                row.roll_no
+              )
+              .toLowerCase()
+              .includes(search) ||
+
+              String(
+                row.name
+              )
+              .toLowerCase()
+              .includes(search);
+
+
+            const matchesSubject =
+              !subject ||
+              row.subject === subject;
+
+
+            const matchesDate =
+              !date ||
+              row.date === date;
+
+
+            return (
+              matchesSearch &&
+              matchesSubject &&
+              matchesDate
+            );
+
+          }
+        );
+
+
+      document.getElementById(
+        "shownCount"
+      ).textContent =
+        filteredData.length;
+
+
+      renderTable();
+
+    }
+
+
+    function renderTable() {
+
+      const tbody =
+        document.getElementById(
+          "dataBody"
+        );
+
+
+      if (!filteredData.length) {
+
+        tbody.innerHTML = `
+
+          <tr>
+
+            <td
+              colspan="7"
+              class="empty"
+            >
+              No data found for the selected filters.
+            </td>
+
+          </tr>
+
+        `;
+
+        return;
+      }
+
+
+      tbody.innerHTML =
+        filteredData.map(
+          (row,index) => {
+
+            const present =
+              row.status === "Present";
+
+
+            return `
+
+              <tr>
+
+                <td>
+                  <b>
+                    ${escapeHtml(
+                      row.roll_no
+                    )}
+                  </b>
+                </td>
+
+
+                <td>
+                  ${escapeHtml(
+                    row.name
+                  )}
+                </td>
+
+
+                <td>
+                  ${escapeHtml(
+                    row.subject ||
+                    "-"
+                  )}
+                </td>
+
+
+                <td>
+                  ${escapeHtml(
+                    row.date ||
+                    "-"
+                  )}
+                </td>
+
+
+                <td>
+
+                  ${
+                    present
+
+                    ? `
+                      <span class="status-present">
+                        Present
+                      </span>
+                    `
+
+                    : `
+                      <span class="status-pending">
+                        ${escapeHtml(
+                          row.status ||
+                          "No Record"
+                        )}
+                      </span>
+                    `
+                  }
+
+                </td>
+
+
+                <td>
+                  ${escapeHtml(
+                    row.time_marked ||
+                    "-"
+                  )}
+                </td>
+
+
+                <td>
+
+                  <button
+                    class="view"
+                    onclick="viewStudent('${escapeJs(
+                      row.roll_no
+                    )}')"
+                  >
+                    View Student
+                  </button>
+
+                </td>
+
+              </tr>
+
+            `;
+
+          }
+        ).join("");
+
+    }
+
+
+    async function viewStudent(
+      rollNo
+    ) {
+
+      const modal =
+        document.getElementById(
+          "studentModal"
+        );
+
+
+      modal.style.display =
+        "flex";
+
+
+      document.getElementById(
+        "studentInfo"
+      ).textContent =
+        "Loading student data...";
+
+
+      document.getElementById(
+        "summaryGrid"
+      ).innerHTML = "";
+
+
+      document.getElementById(
+        "detailBody"
+      ).innerHTML = "";
+
+
+      try {
+
+        const response =
+          await fetch(
+            `${API}/incharge/student/${encodeURIComponent(
+              rollNo
+            )}`
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          result.status !== "success"
+        ) {
+
+          throw new Error(
+            result.message ||
+            "Unable to load student."
+          );
+
+        }
+
+
+        const student =
+          result.student || {};
+
+
+        const records =
+          result.records || [];
+
+
+        document.getElementById(
+          "studentInfo"
+        ).innerHTML = `
+
+          <b>
+            ${escapeHtml(
+              student.name ||
+              "Student"
+            )}
+          </b>
+
+          <br>
+
+          Roll No:
+          <b>
+            ${escapeHtml(
+              student.roll_no ||
+              rollNo
+            )}
+          </b>
+
+        `;
+
+
+        const presentCount =
+          records.filter(
+            x => x.status === "Present"
+          ).length;
+
+
+        const subjectCount =
+          new Set(
+            records.map(
+              x => x.subject
+            )
+          ).size;
+
+
+        const totalRecords =
+          records.length;
+
+
+        document.getElementById(
+          "summaryGrid"
+        ).innerHTML = `
+
+          <div class="summary">
+
+            <b>
+              ${totalRecords}
+            </b>
+
+            <span>
+              Total Records
+            </span>
+
+          </div>
+
+
+          <div class="summary">
+
+            <b>
+              ${presentCount}
+            </b>
+
+            <span>
+              Present Records
+            </span>
+
+          </div>
+
+
+          <div class="summary">
+
+            <b>
+              ${subjectCount}
+            </b>
+
+            <span>
+              Subjects
+            </span>
+
+          </div>
+
+        `;
+
+
+        const grouped = {};
+
+
+        records.forEach(
+          record => {
+
+            const subject =
+              record.subject ||
+              "Unknown";
+
+
+            if (!grouped[subject]) {
+
+              grouped[subject] = [];
+
+            }
+
+
+            grouped[subject].push(
+              record
+            );
+
+          }
+        );
+
+
+        const body =
+          document.getElementById(
+            "detailBody"
+          );
+
+
+        const subjectNames =
+          Object.keys(grouped);
+
+
+        if (!subjectNames.length) {
+
+          body.innerHTML = `
+
+            <tr>
+
+              <td
+                colspan="4"
+                style="
+                  text-align:center;
+                  color:#9ca3af;
+                "
+              >
+                No records available.
+              </td>
+
+            </tr>
+
+          `;
+
+          return;
+        }
+
+
+        body.innerHTML =
+          subjectNames.map(
+            subject => {
+
+              const rows =
+                grouped[subject];
+
+
+              const present =
+                rows.filter(
+                  x =>
+                    x.status ===
+                    "Present"
+                ).length;
+
+
+              const last =
+                rows
+                  .slice()
+                  .sort(
+                    (a,b) =>
+                      String(
+                        b.date
+                      ).localeCompare(
+                        String(a.date)
+                      )
+                  )[0];
+
+
+              const lastMarked =
+                last
+                  ? `${last.date || ""} ${
+                      last.time_marked || ""
+                    }`
+                  : "-";
+
+
+              return `
+
+                <tr>
+
+                  <td>
+                    <b>
+                      ${escapeHtml(
+                        subject
+                      )}
+                    </b>
+                  </td>
+
+                  <td>
+                    ${rows.length}
+                  </td>
+
+                  <td>
+                    ${present}
+                  </td>
+
+                  <td>
+                    ${escapeHtml(
+                      lastMarked
+                    )}
+                  </td>
+
+                </tr>
+
+              `;
+
+            }
+          ).join("");
+
+
+      } catch (error) {
+
+        console.error(error);
+
+
+        document.getElementById(
+          "studentInfo"
+        ).textContent =
+          "Unable to load student details.";
+
+      }
+
+    }
+
+
+    function closeModal() {
+
+      document.getElementById(
+        "studentModal"
+      ).style.display =
+        "none";
+    }
+
+
+    window.onclick =
+      function(event) {
+
+        const modal =
+          document.getElementById(
+            "studentModal"
+          );
+
+
+        if (
+          event.target === modal
+        ) {
+
+          closeModal();
+
+        }
+
+      };
+
+
+    function downloadCSV() {
+
+      if (!filteredData.length) {
+
+        alert(
+          "No filtered data available."
+        );
+
+        return;
+      }
+
+
+      let csv =
+        "Roll No,Student Name,Subject,Date,Status,Time Marked\n";
+
+
+      filteredData.forEach(
+        row => {
+
+          csv +=
+            `"${row.roll_no}","${row.name}","${row.subject || ""}","${row.date || ""}","${row.status || ""}","${row.time_marked || ""}"\n`;
+
+        }
+      );
+
+
+      const blob =
+        new Blob(
+          [csv],
+          {
+            type:
+              "text/csv;charset=utf-8;"
+          }
+        );
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.href =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      link.download =
+        `class_data_${new Date()
+          .toISOString()
+          .slice(0,10)}.csv`;
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      document.body.removeChild(
+        link
+      );
+
+    }
+
+
+    function logout() {
+
+      localStorage.clear();
+
+      window.location.href =
+        "incharge_login.html";
+    }
+
+
+    function escapeHtml(value) {
+
+      return String(
+        value ?? ""
+      )
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    }
+
+
+    function escapeJs(value) {
+
+      return String(
+        value ?? ""
+      )
+      .replaceAll("\\", "\\\\")
+      .replaceAll("'", "\\'")
+      .replaceAll('"', '\\"');
+
+    }
+
+  </script>
+
+</body>
+</html>
