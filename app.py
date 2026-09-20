@@ -225,6 +225,74 @@ init_db()
 
 
 # ============================================================
+# DEMO DATA AUTO-SEED
+# Runs every time the server starts. If the database is currently
+# empty (e.g. Render's free-tier disk reset after a restart), it
+# automatically recreates a fixed set of demo credentials — so you
+# never have to manually re-run manage_teacher.py / manage_student.py
+# against the live server (those scripts only affect your own laptop's
+# local database, not the deployed one).
+#
+# Safe to keep running: if accounts already exist, nothing is touched.
+# ============================================================
+
+def seed_demo_data():
+    conn = get_db_connection()
+
+    teacher_count = conn.execute(
+        "SELECT COUNT(*) AS c FROM teachers"
+    ).fetchone()["c"]
+
+    if teacher_count == 0:
+        demo_teachers = [
+            ("Prof. Sharma", "teacher1", "test123", "Python"),
+            ("Prof. Verma", "teacher2", "test123", "DSA"),
+        ]
+        for name, username, password, subject in demo_teachers:
+            conn.execute(
+                "INSERT INTO teachers (name, username, password, subject) VALUES (?, ?, ?, ?)",
+                (name, username, generate_password_hash(password), subject)
+            )
+        print("Seeded demo teachers: teacher1/test123 (Python), teacher2/test123 (DSA)")
+
+    student_count = conn.execute(
+        "SELECT COUNT(*) AS c FROM students"
+    ).fetchone()["c"]
+
+    if student_count == 0:
+        demo_students = [
+            ("1001", "Aman Kumar", "test123"),
+            ("1002", "Priya Singh", "test123"),
+            ("1003", "Rahul Yadav", "test123"),
+            ("1004", "Sneha Gupta", "test123"),
+            ("1005", "Vikas Rao", "test123"),
+        ]
+        for roll_no, name, password in demo_students:
+            conn.execute(
+                "INSERT INTO students (roll_no, name, password) VALUES (?, ?, ?)",
+                (roll_no, name, generate_password_hash(password))
+            )
+        print("Seeded demo students: roll_no 1001-1005, password test123 for all")
+
+    incharge_count = conn.execute(
+        "SELECT COUNT(*) AS c FROM class_incharges"
+    ).fetchone()["c"]
+
+    if incharge_count == 0:
+        conn.execute(
+            "INSERT INTO class_incharges (name, username, password) VALUES (?, ?, ?)",
+            ("Dr. Mehta", "incharge1", generate_password_hash("test123"))
+        )
+        print("Seeded demo class incharge: incharge1/test123")
+
+    conn.commit()
+    conn.close()
+
+
+seed_demo_data()
+
+
+# ============================================================
 # TEACHER LOGIN
 # ============================================================
 
