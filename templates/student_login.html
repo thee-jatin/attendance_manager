@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -267,7 +267,7 @@ async function handleLogin(e) {
 
   // Frontend 4-digit validation check
   if (!/^\d{4}$/.test(roll)) {
-    errorMsg.textContent = 'कृपया केवल 4 अंकों का Roll Number दर्ज करें! (जैसे: 1001)';
+    errorMsg.textContent = 'Please enter only a 4-digit Roll Number! (e.g. 1001)';
     errorMsg.style.display = 'block';
     return;
   }
@@ -277,7 +277,7 @@ async function handleLogin(e) {
   loginBtn.disabled = true;
 
   // Localhost test URL
-  const API_URL = 'http://127.0.0.1:5000/api/student/login';
+  const API_URL = 'https://attendance-manager-e3n7.onrender.com/api/student/login';
 
   try {
     const response = await fetch(API_URL, {
@@ -294,7 +294,7 @@ async function handleLogin(e) {
     const data = await response.json();
 
     if (response.ok && data.status === 'success') {
-      // Name की जगह केवल Roll Number ही local storage में सेव होगा
+      // Only the Roll Number is saved to local storage, not the name
       localStorage.setItem('student_roll', data.roll_no);
       
       // Redirecting to Student Dashboard
@@ -305,7 +305,7 @@ async function handleLogin(e) {
     }
   } catch (err) {
     console.error('Fetch Error:', err);
-    errorMsg.textContent = 'Backend Connection Error! क्या आपका Flask Server (5000) चल रहा है?';
+    errorMsg.textContent = 'Backend Connection Error! Is your Flask server running on port 5000?';
     errorMsg.style.display = 'block';
   } finally {
     loginBtn.textContent = 'Login to Dashboard';
