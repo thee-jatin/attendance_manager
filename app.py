@@ -8,17 +8,17 @@ from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
-app = Flask(__name__, static_folder=".", static_url_path="")
+app = Flask(__name__, static_folder="templates", static_url_path="")
 
 # When someone opens the site's root URL (e.g. the Render link), serve
 # index.html as the homepage. Every other HTML file (teacher_login.html,
 # student_dashboard.html, etc.) is also automatically reachable directly
 # at its own filename, e.g. https://<your-site>/teacher_login.html,
-# because static_folder="." + static_url_path="" makes Flask serve any
-# file sitting next to app.py.
+# because static_folder="templates" + static_url_path="" makes Flask
+# serve any file sitting inside the templates/ folder.
 @app.route("/")
 def home():
-    return send_from_directory(".", "index.html")
+    return send_from_directory("templates", "index.html")
 CORS(app)
 
 
