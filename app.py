@@ -23,6 +23,29 @@ CORS(app)
 
 
 # ============================================================
+# TEMPORARY DEBUG ROUTE — remove this once the 404 issue is fixed.
+# Visit /debug-files in the browser to see exactly what files exist
+# on the deployed server, since Render's free tier has no Shell access.
+# ============================================================
+
+@app.route("/debug-files")
+def debug_files():
+    import os
+
+    result = {
+        "current_working_directory": os.getcwd(),
+        "files_next_to_app_py": os.listdir(".")
+    }
+
+    if os.path.isdir("templates"):
+        result["files_inside_templates"] = os.listdir("templates")
+    else:
+        result["files_inside_templates"] = "templates folder NOT FOUND at this path"
+
+    return jsonify(result)
+
+
+# ============================================================
 # SETTINGS
 # ============================================================
 
