@@ -245,8 +245,8 @@ def seed_demo_data():
 
     if teacher_count == 0:
         demo_teachers = [
-            ("Prof. Sharma", "teacher1", "test123", "Python"),
-            ("Prof. Verma", "teacher2", "test123", "DSA"),
+            ("MR. PRASHANT", "teacher1", "test123", "Python"),
+            ("MR. DEV", "teacher2", "test123", "DSA"),
         ]
         for name, username, password, subject in demo_teachers:
             conn.execute(
@@ -261,11 +261,11 @@ def seed_demo_data():
 
     if student_count == 0:
         demo_students = [
-            ("1001", "Aman Kumar", "test123"),
-            ("1002", "Priya Singh", "test123"),
-            ("1003", "Rahul Yadav", "test123"),
-            ("1004", "Sneha Gupta", "test123"),
-            ("1005", "Vikas Rao", "test123"),
+            ("1001", "ANSHUL SINGH", "test123"),
+            ("1002", "DEERH SHARMA", "test123"),
+            ("1003", "JATIN KUMAR", "test123"),
+            ("1004", "MANISH KUMAR", "test123"),
+            ("1005", "AREEBA KHAN", "test123"),
         ]
         for roll_no, name, password in demo_students:
             conn.execute(
@@ -281,7 +281,7 @@ def seed_demo_data():
     if incharge_count == 0:
         conn.execute(
             "INSERT INTO class_incharges (name, username, password) VALUES (?, ?, ?)",
-            ("Dr. Mehta", "incharge1", generate_password_hash("test123"))
+            ("MR. VISHESH", "incharge1", generate_password_hash("test123"))
         )
         print("Seeded demo class incharge: incharge1/test123")
 
