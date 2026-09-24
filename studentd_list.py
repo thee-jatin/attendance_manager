@@ -11,3 +11,8 @@ for row in rows:
   print(f'Roll No: {row[0]} | Name: {row[1]}')
 
 conn.close()
+
+
+
+
+
